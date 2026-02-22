@@ -1,0 +1,11 @@
+/* css/light.css */
+:root {
+    --color-primary: #6b4eff;
+    --color-secondary: #ffb703;
+
+    --color-bg: #ffffff;
+    --color-surface: #f7f7fb;
+
+    --color-text-primary: #0f0f14;
+    --color-text-secondary: #4a4a68;
+}

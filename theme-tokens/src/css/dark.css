@@ -1,0 +1,11 @@
+/* css/dark.css */
+:root {
+    --color-primary: #6b4eff;
+    --color-secondary: #ffb703;
+
+    --color-bg: #0f0f14;
+    --color-surface: #1a1a23;
+
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #b3b3c2;
+}
