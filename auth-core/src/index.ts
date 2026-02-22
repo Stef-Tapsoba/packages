@@ -1,3 +1,4 @@
+// index.ts
 export * from "./authService"
 export * from "./types"
 export * from "./storage"
