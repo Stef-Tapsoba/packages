@@ -1,0 +1,158 @@
+// tsconfig.json
+{
+    "compilerOptions": {
+        "target": "ES2020",
+        "module": "ESNext",
+        "moduleResolution": "node",
+        "composite": true,
+        "declaration": true,
+        "declarationMap": true,
+        "outDir": "dist",
+        "rootDir": "src",
+        "strict": true,
+        "skipLibCheck": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "baseUrl": ".",
+        "paths": {
+            "@myorg/auth-core": [
+                "../auth-core/src"
+            ]
+        }
+    },
+    "include": [
+        "src"
+    ],
+    "references": [
+        {
+            "path": "../auth-core"
+        }
+    ]
+}
+
+
+// package.json
+{
+    "name": "@myorg/storage",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "tsc -b",
+        "clean": "rm -rf dist"
+    },
+    "dependencies": {
+        "@myorg/auth-core": "*"
+    }
+}
+
+
+// src/index.ts
+// index.ts
+export * from "./LocalStorageAdapter"
+export * from "./SessionStorageAdapter"
+export * from "./MemoryStorageAdapter"
+
+
+
+// src/LocalStorageAdapter.ts
+// LocalStorageAdapter.ts
+import { AuthStorage } from "@myorg/auth-core"
+
+/**
+ * AuthStorage implementation backed by window.localStorage.
+ * Keys are namespaced to avoid collisions with other libraries.
+ */
+export class LocalStorageAdapter implements AuthStorage {
+    constructor(private namespace = "myorg") {}
+
+    private key(k: string) {
+        return `${this.namespace}:${k}`
+    }
+
+    async get(key: string): Promise<string | null> {
+        return localStorage.getItem(this.key(key))
+    }
+
+    async set(key: string, value: string): Promise<void> {
+        localStorage.setItem(this.key(key), value)
+    }
+
+    async remove(key: string): Promise<void> {
+        localStorage.removeItem(this.key(key))
+    }
+}
+
+
+
+// src/MemoryStorageAdapter.ts
+// MemoryStorageAdapter.ts
+import { AuthStorage } from "@myorg/auth-core"
+
+/**
+ * AuthStorage implementation backed by an in-memory Map.
+ * Data is lost on page reload or process restart.
+ *
+ * Useful for:
+ *  - Unit tests (no browser globals required)
+ *  - Server-side rendering (SSR) where localStorage is unavailable
+ *  - Node.js environments
+ */
+export class MemoryStorageAdapter implements AuthStorage {
+    private store = new Map<string, string>()
+
+    async get(key: string): Promise<string | null> {
+        return this.store.get(key) ?? null
+    }
+
+    async set(key: string, value: string): Promise<void> {
+        this.store.set(key, value)
+    }
+
+    async remove(key: string): Promise<void> {
+        this.store.delete(key)
+    }
+
+    /** Clears all stored data. Useful for resetting state in tests. */
+    clear(): void {
+        this.store.clear()
+    }
+}
+
+
+
+// src/SessionStorageAdapter.ts
+// SessionStorageAdapter.ts
+import { AuthStorage } from "@myorg/auth-core"
+
+/**
+ * AuthStorage implementation backed by window.sessionStorage.
+ * Data is cleared when the browser tab is closed — useful for
+ * "don't remember me" flows.
+ * Keys are namespaced to avoid collisions with other libraries.
+ */
+export class SessionStorageAdapter implements AuthStorage {
+    constructor(private namespace = "myorg") {}
+
+    private key(k: string) {
+        return `${this.namespace}:${k}`
+    }
+
+    async get(key: string): Promise<string | null> {
+        return sessionStorage.getItem(this.key(key))
+    }
+
+    async set(key: string, value: string): Promise<void> {
+        sessionStorage.setItem(this.key(key), value)
+    }
+
+    async remove(key: string): Promise<void> {
+        sessionStorage.removeItem(this.key(key))
+    }
+}
+
