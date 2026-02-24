@@ -1,8 +1,24 @@
 // client.ts
 
-import { ApiClientConfig, HttpMethod } from "./types"
+import { ApiClientConfig, HttpMethod, QueryParams, RequestOptions } from "./types"
 import { parseResponse } from "./request"
 import { UnauthorizedError } from "./errors"
+
+function buildUrl(base: string, path: string, params?: QueryParams): string {
+    const url = new URL(`${base}${path}`)
+
+    if (params) {
+        for (const [key, value] of Object.entries(params)) {
+            if (value == null) continue
+            const values = Array.isArray(value) ? value : [value]
+            for (const v of values) {
+                if (v != null) url.searchParams.append(key, String(v))
+            }
+        }
+    }
+
+    return url.toString()
+}
 
 export class ApiClient {
     constructor(private config: ApiClientConfig) { }
@@ -23,16 +39,16 @@ export class ApiClient {
         method: HttpMethod,
         path: string,
         body?: unknown,
-        headers?: Record<string, string>
+        options?: RequestOptions
     ): Promise<T> {
-        const res = await fetch(
-            `${this.config.baseUrl}${path}`,
-            {
-                method,
-                headers: await this.buildHeaders(headers),
-                body: body ? JSON.stringify(body) : undefined
-            }
-        )
+        const url = buildUrl(this.config.baseUrl, path, options?.params)
+
+        const res = await fetch(url, {
+            method,
+            headers: await this.buildHeaders(options?.headers),
+            body: body ? JSON.stringify(body) : undefined,
+            signal: options?.signal
+        })
 
         try {
             return await parseResponse(res) as T
@@ -44,23 +60,23 @@ export class ApiClient {
         }
     }
 
-    get<T>(path: string, headers?: Record<string, string>) {
-        return this.request<T>("GET", path, undefined, headers)
+    get<T>(path: string, options?: RequestOptions) {
+        return this.request<T>("GET", path, undefined, options)
     }
 
-    post<T>(path: string, body?: unknown) {
-        return this.request<T>("POST", path, body)
+    post<T>(path: string, body?: unknown, options?: RequestOptions) {
+        return this.request<T>("POST", path, body, options)
     }
 
-    put<T>(path: string, body?: unknown) {
-        return this.request<T>("PUT", path, body)
+    put<T>(path: string, body?: unknown, options?: RequestOptions) {
+        return this.request<T>("PUT", path, body, options)
     }
 
-    patch<T>(path: string, body?: unknown) {
-        return this.request<T>("PATCH", path, body)
+    patch<T>(path: string, body?: unknown, options?: RequestOptions) {
+        return this.request<T>("PATCH", path, body, options)
     }
 
-    delete<T>(path: string) {
-        return this.request<T>("DELETE", path)
+    delete<T>(path: string, options?: RequestOptions) {
+        return this.request<T>("DELETE", path, undefined, options)
     }
 }
