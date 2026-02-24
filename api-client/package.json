@@ -10,7 +10,12 @@
     ],
     "scripts": {
         "build": "tsc -b",
-        "clean": "rm -rf dist"
+        "clean": "rm -rf dist",
+        "test": "vitest run",
+        "test:watch": "vitest"
+    },
+    "devDependencies": {
+        "vitest": "^1.0.0"
     },
     "dependencies": {
         "@myorg/auth-core": "*"
