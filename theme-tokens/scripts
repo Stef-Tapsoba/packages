@@ -19,6 +19,9 @@ import { spacing } from "../src/tokens/spacing"
 import { radii } from "../src/tokens/radii"
 import { typography } from "../src/tokens/typography"
 import { shadows } from "../src/tokens/shadows"
+import { duration, easing } from "../src/tokens/animation"
+import { zIndex } from "../src/tokens/zIndex"
+import { breakpoints } from "../src/tokens/breakpoints"
 import { lightTheme } from "../src/themes/light"
 import { darkTheme } from "../src/themes/dark"
 
@@ -51,7 +54,7 @@ function toCssVars(prefix: string, tokens: TokenMap, unit = ""): string {
 // ---------------------------------------------------------------------------
 
 const baseLines = [
-    header("Base tokens: spacing, radii, typography. Not theme-specific."),
+    header("Base tokens: spacing, radii, typography, shadows, animation, z-index, breakpoints."),
     ":root {",
     toCssVars("space", spacing as unknown as TokenMap, "px"),
     "",
@@ -62,6 +65,14 @@ const baseLines = [
     toCssVars("font-size", typography.fontSize as unknown as TokenMap, "px"),
     "",
     toCssVars("shadow", shadows as unknown as TokenMap),
+    "",
+    toCssVars("duration", duration as unknown as TokenMap, "ms"),
+    "",
+    toCssVars("easing", easing as unknown as TokenMap),
+    "",
+    toCssVars("z", zIndex as unknown as TokenMap),
+    "",
+    toCssVars("breakpoint", breakpoints as unknown as TokenMap, "px"),
     "}",
     ""
 ].join("\n")
