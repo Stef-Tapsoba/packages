@@ -10,7 +10,11 @@
         "css"
     ],
     "scripts": {
-        "build": "tsc -b",
+        "build": "npm run generate-css && tsc -b",
+        "generate-css": "tsx scripts/generate-css.ts",
         "clean": "rm -rf dist"
+    },
+    "devDependencies": {
+        "tsx": "^4.0.0"
     }
 }
