@@ -22,6 +22,11 @@
     "include": [
         "src"
     ],
+    "exclude": [
+        "**/__tests__/**",
+        "**/*.test.ts",
+        "**/*.spec.ts"
+    ],
     "references": [
         {
             "path": "../auth-core"

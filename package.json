@@ -1,0 +1,19 @@
+{
+    "name": "@stef-t/packages",
+    "private": true,
+    "workspaces": [
+        "api-client",
+        "auth-core",
+        "user-core",
+        "validation",
+        "theme-tokens"
+    ],
+    "scripts": {
+        "tsc": "tsc",
+        "build": "tsc -b",
+        "typecheck": "tsc --noEmit"
+    },
+    "devDependencies": {
+        "typescript": "^5.3.0"
+    }
+}
