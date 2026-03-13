@@ -16,6 +16,9 @@ Each package is modular, composable, and fully type-safe.
 | `theme-tokens` | Design system tokens (colors, spacing, typography, shadows, animation, z-index, breakpoints) with generated CSS custom properties. |
 | `storage` | Concrete `AuthStorage` implementations: `LocalStorageAdapter`, `SessionStorageAdapter`, `MemoryStorageAdapter`. |
 | `event-bus` | Generic typed event bus for cross-package communication. |
+| `quiz-engine` | Generic React MCQ drill hook (`useDrill`) — question progression, scoring, missed-answer tracking, keyboard shortcuts. |
+| `tts` | Web Speech API wrapper — `speak`, `speakAsync`, `cancel`, `isSpeaking`. Zero dependencies. |
+| `srs` | Pure SM-2 spaced-repetition algorithm — `calcNextReview`, `getDueCards`. No storage, no framework. |
 
 ---
 
@@ -244,6 +247,107 @@ unsub() // remove the listener
 
 ---
 
+### `quiz-engine`
+
+A generic React hook for multiple-choice drills. Handles question progression, answer selection, scoring, missed-answer tracking, and keyboard shortcuts (1–4 to select, Enter/Space to advance).
+
+Requires React ≥ 18 as a peer dependency. Framework-agnostic types — bring your own question shape.
+
+```typescript
+import { useDrill } from "@myorg/quiz-engine"
+import type { DrillQuestion } from "@myorg/quiz-engine"
+
+// ── Minimum question shape ──
+interface GrammarQ extends DrillQuestion {
+    prompt: string
+    explanation: string
+}
+
+const drill = useDrill<GrammarQ>(questions)
+
+// drill.index       — current question index
+// drill.selected    — chosen option string, or null
+// drill.revealed    — true once an answer is locked in
+// drill.score       — correct answers so far
+// drill.done        — true after the last question
+// drill.missed      — MissedEntry<GrammarQ>[] for review screen
+// drill.handleSelect(opt) — lock in an answer
+// drill.handleNext()      — advance (or finalise)
+// drill.restart()         — reset to beginning
+```
+
+**Other use cases:** compliance training LMS, trivia / pub quiz, medical exam prep, product knowledge training, onboarding assessments.
+
+---
+
+### `tts`
+
+A thin, stateless wrapper around the browser's `SpeechSynthesis` API.
+No framework, no dependencies. The caller provides a BCP-47 language tag directly.
+
+```typescript
+import { speak, speakAsync, cancel, isSpeaking } from "@myorg/tts"
+
+// Speak a word in Japanese
+speak("ありがとう", "ja-JP")
+
+// Slower rate for learners
+speak("Bonjour tout le monde", "fr-FR", 0.75)
+
+// Toggle: if already speaking, stop; otherwise start
+function handleButton(text: string, lang: string) {
+    if (isSpeaking()) { cancel(); return }
+    speak(text, lang)
+}
+
+// Sequence multiple utterances (e.g. read an article paragraph by paragraph)
+for (const paragraph of article.paragraphs) {
+    await speakAsync(paragraph, "en-US")
+}
+```
+
+**BCP-47 quick reference:** `"en-US"`, `"es-ES"`, `"fr-FR"`, `"it-IT"`, `"ja-JP"`, `"ko-KR"`, `"de-DE"`, `"zh-CN"`
+
+**Other use cases:** accessibility / screen reader augmentation, e-commerce product descriptions, news reader apps, e-learning platforms.
+
+---
+
+### `srs`
+
+A pure implementation of the SM-2 spaced-repetition algorithm. No storage layer, no React, no side effects — bring your own persistence.
+
+```typescript
+import { calcNextReview, getDueCards, INITIAL_STATE } from "@myorg/srs"
+import type { SRSCardState, SRSQuality } from "@myorg/srs"
+
+// Review a card and get the updated schedule
+const state: SRSCardState = loadState(cardId) ?? INITIAL_STATE
+const quality: SRSQuality = 4  // 0=blackout … 5=perfect
+const { nextState, nextLabel } = calcNextReview(state, quality)
+saveState(cardId, nextState)
+console.log(nextLabel)  // e.g. "in 6 days"
+
+// Find which cards are due today (max 20 new cards per session)
+const allStates = loadAllStates()    // Record<string, SRSCardState>
+const dueIds = getDueCards(allStates, deck.map(c => c.id), 20)
+startSession(dueIds)
+```
+
+**Quality grades:**
+
+| Grade | Meaning |
+|---|---|
+| 0 | Complete blackout |
+| 1 | Wrong — correct felt familiar |
+| 2 | Wrong — easy after reveal |
+| 3 | Correct but effortful |
+| 4 | Correct with minor hesitation |
+| 5 | Perfect, instant recall |
+
+**Other use cases:** vocabulary trainers, medical/certification exam prep, employee onboarding, language learning apps, trivia games with difficulty scaling.
+
+---
+
 ## Development
 
 ### Folder Structure
@@ -253,10 +357,13 @@ packages/
 ├─ auth-core/
 ├─ api-client/
 ├─ event-bus/
+├─ quiz-engine/
+├─ srs/
 ├─ storage/
 ├─ theme-tokens/
 │  └─ scripts/
 │     └─ generate-css.ts
+├─ tts/
 ├─ user-core/
 ├─ validation/
 └─ tsconfig.json          ← root project references
