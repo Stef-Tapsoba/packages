@@ -76,7 +76,11 @@ export class EventBus<Events extends EventMap> {
     ): void {
         const [event, payload] = args
         this.listeners.get(event)?.forEach(fn => {
-            (fn as (p: unknown) => void)(payload)
+            try {
+                (fn as (p: unknown) => void)(payload)
+            } catch (e) {
+                console.error(`EventBus: listener for "${String(event)}" threw an error`, e)
+            }
         })
     }
 

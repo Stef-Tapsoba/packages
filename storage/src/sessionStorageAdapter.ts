@@ -8,7 +8,7 @@ import { AuthStorage } from "@myorg/auth-core"
  * Keys are namespaced to avoid collisions with other libraries.
  */
 export class SessionStorageAdapter implements AuthStorage {
-    constructor(private namespace = "myorg") {}
+    constructor(private readonly namespace = "myorg") {}
 
     private key(k: string) {
         return `${this.namespace}:${k}`
@@ -19,7 +19,14 @@ export class SessionStorageAdapter implements AuthStorage {
     }
 
     async set(key: string, value: string): Promise<void> {
-        sessionStorage.setItem(this.key(key), value)
+        try {
+            sessionStorage.setItem(this.key(key), value)
+        } catch (e) {
+            if (e instanceof DOMException && e.name === "QuotaExceededError") {
+                throw new Error(`Storage quota exceeded while writing key "${key}"`)
+            }
+            throw e
+        }
     }
 
     async remove(key: string): Promise<void> {
