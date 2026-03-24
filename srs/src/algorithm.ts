@@ -86,7 +86,7 @@ export function calcNextReview(
         } else if (newStreak === 2) {
             newInterval = 6
         } else {
-            newInterval = Math.round(state.intervalDays * newEF)
+            newInterval = Math.min(365, Math.round(state.intervalDays * newEF))
         }
     }
 

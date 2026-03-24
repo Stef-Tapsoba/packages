@@ -276,6 +276,10 @@ const drill = useDrill<GrammarQ>(questions)
 // drill.restart()         — reset to beginning
 ```
 
+**Implementation notes:**
+- Calling `handleNext()` on an empty question array is a safe no-op (does not throw).
+- Keyboard shortcuts are registered on `window` and cleaned up automatically via `useEffect` return.
+
 **Other use cases:** compliance training LMS, trivia / pub quiz, medical exam prep, product knowledge training, onboarding assessments.
 
 ---
@@ -344,6 +348,10 @@ startSession(dueIds)
 | 4 | Correct with minor hesitation |
 | 5 | Perfect, instant recall |
 
+**Implementation notes:**
+- Intervals are capped at **365 days** — the SM-2 multiplier is applied unboundedly by the original algorithm, but this prevents `intervalDays` from growing to `Infinity` after many perfect reviews.
+- Quality grades below 3 reset `streak` to 0 and `intervalDays` to 1 (restart from the beginning).
+
 **Other use cases:** vocabulary trainers, medical/certification exam prep, employee onboarding, language learning apps, trivia games with difficulty scaling.
 
 ---
@@ -389,7 +397,7 @@ npm test
 npm run test:watch
 ```
 
-Packages with tests: `api-client`, `event-bus`, `validation`
+Packages with tests: `api-client`, `auth-core`, `event-bus`, `quiz-engine`, `srs`, `storage`, `tts`, `validation`
 
 ### tsconfig conventions
 

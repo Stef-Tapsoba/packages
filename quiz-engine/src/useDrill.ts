@@ -65,6 +65,7 @@ export function useDrill<Q extends DrillQuestion>(questions: Q[]): DrillState<Q>
 
     function advance(currentScore: number, currentIndex: number, currentSelected: string | null) {
         const q = questions[currentIndex]
+        if (!q) return
         const isCorrect = currentSelected === q.correct
         const newScore = currentScore + (isCorrect ? 1 : 0)
         if (!isCorrect && currentSelected !== null) {
