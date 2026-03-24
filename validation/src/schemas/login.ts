@@ -1,7 +1,6 @@
 // schemas/login.ts
 import { validateEmail } from "../validators/email"
-import { validatePassword } from "../validators/password"
-import { ValidationResult } from "../types"
+import { ValidationResult, ValidationError } from "../types"
 
 export interface LoginInput {
     email: string
@@ -11,9 +10,9 @@ export interface LoginInput {
 export function validateLogin(
     input: LoginInput
 ): ValidationResult<LoginInput> {
-    const errors = [
+    const errors: ValidationError[] = [
         ...validateEmail(input.email),
-        ...validatePassword(input.password)
+        ...(!input.password ? [{ field: "password", code: "REQUIRED", message: "Password is required" }] : [])
     ]
 
     return errors.length

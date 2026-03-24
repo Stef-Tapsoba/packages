@@ -27,8 +27,15 @@ describe("validateLogin", () => {
         }
     })
 
-    it("returns invalid with errors for bad password", () => {
+    it("accepts any non-empty password (no complexity rules at login)", () => {
+        // Existing users may have passwords that predate the 8-char/uppercase
+        // registration requirement — login must not block them.
         const result = validateLogin({ email: "user@example.com", password: "weak" })
+        expect(result.valid).toBe(true)
+    })
+
+    it("returns invalid for empty password", () => {
+        const result = validateLogin({ email: "user@example.com", password: "" })
         expect(result.valid).toBe(false)
         if (!result.valid) {
             const fields = result.errors.map(e => e.field)
