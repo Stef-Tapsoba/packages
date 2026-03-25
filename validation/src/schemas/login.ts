@@ -12,7 +12,7 @@ export function validateLogin(
 ): ValidationResult<LoginInput> {
     const errors: ValidationError[] = [
         ...validateEmail(input.email),
-        ...(!input.password ? [{ field: "password", code: "REQUIRED", message: "Password is required" }] : [])
+        ...(!input.password ? [{ field: "password", code: "REQUIRED", message: "Password is required" } as ValidationError] : [])
     ]
 
     return errors.length
