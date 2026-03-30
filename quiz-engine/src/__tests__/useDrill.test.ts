@@ -174,14 +174,13 @@ describe("useDrill — handleNext() with wrong answer", () => {
 })
 
 // ---------------------------------------------------------------------------
-// handleNext — null selected (skipped without selecting)
+// handleNext — no selection yet (BUG-004 fix: must be a no-op)
 // ---------------------------------------------------------------------------
 
-describe("useDrill — handleNext() with null selected", () => {
+describe("useDrill — handleNext() before any selection", () => {
     it("does not increment score", () => {
         const { result } = renderHook(() => useDrill(THREE_QUESTIONS))
 
-        // advance without selecting
         act(() => { result.current.handleNext() })
 
         expect(result.current.score).toBe(0)
@@ -195,12 +194,20 @@ describe("useDrill — handleNext() with null selected", () => {
         expect(result.current.missed).toHaveLength(0)
     })
 
-    it("advances index", () => {
+    it("does not advance index (BUG-004 fix)", () => {
         const { result } = renderHook(() => useDrill(THREE_QUESTIONS))
 
         act(() => { result.current.handleNext() })
 
-        expect(result.current.index).toBe(1)
+        expect(result.current.index).toBe(0)
+    })
+
+    it("does not set revealed", () => {
+        const { result } = renderHook(() => useDrill(THREE_QUESTIONS))
+
+        act(() => { result.current.handleNext() })
+
+        expect(result.current.revealed).toBe(false)
     })
 })
 

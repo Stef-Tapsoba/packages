@@ -83,6 +83,7 @@ export function useDrill<Q extends DrillQuestion>(questions: Q[]): DrillState<Q>
     }
 
     function handleNext() {
+        if (!revealed) return
         advance(score, index, selected)
     }
 
@@ -110,8 +111,8 @@ export function useDrill<Q extends DrillQuestion>(questions: Q[]): DrillState<Q>
                 advance(score, index, selected)
             }
         }
-        window.addEventListener("keydown", onKey)
-        return () => window.removeEventListener("keydown", onKey)
+        globalThis.addEventListener("keydown", onKey)
+        return () => globalThis.removeEventListener("keydown", onKey)
     }, [index, revealed, done, score, selected, questions])
 
     return { index, selected, revealed, score, done, missed, handleSelect, handleNext, restart }
